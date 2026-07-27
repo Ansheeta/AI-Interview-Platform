@@ -8,13 +8,18 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Bundles chart files safely together
           if (id.includes('chart.js') || id.includes('react-chartjs-2')) return 'charts';
+          
+          // Bundles animations safely together
           if (id.includes('framer-motion')) return 'motion';
+          
+          // Simplified checking strings to avoid path slash style mismatches across operating systems
           if (
-            id.includes('node_modules/react/') ||
-            id.includes('node_modules/react-dom/') ||
-            id.includes('react-router-dom') ||
-            id.includes('node_modules/axios')
+            id.includes('react') || 
+            id.includes('react-dom') || 
+            id.includes('react-router-dom') || 
+            id.includes('axios')
           ) {
             return 'vendor';
           }
