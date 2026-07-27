@@ -5,6 +5,9 @@ import PublicRoute from './components/common/PublicRoute';
 import AppLayout from './components/layout/AppLayout';
 import FullPageLoader from './components/common/FullPageLoader';
 
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+axios.defaults.withCredentials = true; 
+
 // Route-level code splitting: each page (and its heavy dependencies, like
 // Chart.js on Analytics/Dashboard) loads only when its route is visited,
 // instead of bloating the initial bundle.
