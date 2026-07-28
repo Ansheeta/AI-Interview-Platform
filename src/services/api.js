@@ -1,20 +1,18 @@
 import axios from 'axios';
 
-// 1. Grab just the base platform domain name
-const RAW_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-
-// 2. Ensure it cleanly constructs the version path for both local and production
-const API_BASE_URL = `${RAW_BASE_URL.replace(/\/$/, '')}/api/v1`;
+// Automatically uses Netlify's domain in production, and localhost during development
+const API_BASE_URL = import.meta.env.PROD 
+  ? `${window.location.origin}/api/v1` 
+  : 'http://localhost:5000/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // send/receive httpOnly cookies (accessToken/refreshToken)
+  withCredentials: true, 
   headers: { 'Content-Type': 'application/json' },
 });
 
 let isRefreshing = false;
 let pendingQueue = [];
-
 
 // import axios from 'axios';
 
