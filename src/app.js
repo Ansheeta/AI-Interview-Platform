@@ -14,6 +14,8 @@ const { apiLimiter } = require('./middlewares/rateLimiter.middleware');
 
 const app = express();
 
+app.set('trust proxy', 1); 
+
 // --- Security & core middleware ---
 app.use(helmet());
 app.use(
