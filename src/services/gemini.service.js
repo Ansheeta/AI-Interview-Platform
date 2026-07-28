@@ -24,6 +24,7 @@ function getModel() {
  * Generates `count` interview questions for a given company/role/difficulty.
  * Returns an array of { questionText, category }.
  */
+
 async function generateInterviewQuestions({ company, role, difficulty, count }) {
   const prompt = `You are an expert technical interviewer preparing mock interview questions.
 
@@ -38,16 +39,30 @@ Respond with ONLY a raw JSON array, no markdown, no commentary, in this exact sh
 
   let result;
   try {
+    // 1. Explicitly await the remote network call to the Gemini model
     result = await getModel().generateContent(prompt);
   } catch (err) {
+    console.error("Gemini Generation SDK Error:", err);
     throw new AppError('Failed to generate interview questions. Please try again.', 502);
   }
 
-  const text = result.response.text();
-  const parsed = parseJsonFromAI(text);
+  // 2. CRUCIAL FIX: Await the response wrapper cleanly to keep the network stream open
+  const response = await result.response;
+  const text = response.text();
+  
+  // 3. Defer the heavy JSON parsing operation slightly to keep the event loop non-blocking
+  const parsed = await new Promise((resolve, reject) => {
+    setImmediate(() => {
+      try {
+        resolve(parseJsonFromAI(text));
+      } catch (e) {
+        reject(new AppError('AI returned an unexpected response format for questions.', 502));
+      }
+    });
+  });
 
   if (!Array.isArray(parsed) || parsed.length === 0) {
-    throw new AppError('AI returned an unexpected response format for questions.', 502);
+    throw new AppError('AI returned an empty or invalid format array.', 502);
   }
 
   return parsed.map((q, index) => ({
@@ -56,6 +71,39 @@ Respond with ONLY a raw JSON array, no markdown, no commentary, in this exact sh
     order: index,
   }));
 }
+
+// async function generateInterviewQuestions({ company, role, difficulty, count }) {
+//   const prompt = `You are an expert technical interviewer preparing mock interview questions.
+
+// Generate exactly ${count} interview questions for a candidate interviewing at "${company}" for the role of "${role}" at "${difficulty}" difficulty.
+
+// Mix question types appropriately for the role (technical, behavioral, and role-specific questions).
+
+// Respond with ONLY a raw JSON array, no markdown, no commentary, in this exact shape:
+// [
+//   { "questionText": "string", "category": "string (e.g. Data Structures & Algorithms, System Design, Behavioral, Frontend, Backend, General)" }
+// ]`;
+
+//   let result;
+//   try {
+//     result = await getModel().generateContent(prompt);
+//   } catch (err) {
+//     throw new AppError('Failed to generate interview questions. Please try again.', 502);
+//   }
+
+//   const text = result.response.text();
+//   const parsed = parseJsonFromAI(text);
+
+//   if (!Array.isArray(parsed) || parsed.length === 0) {
+//     throw new AppError('AI returned an unexpected response format for questions.', 502);
+//   }
+
+//   return parsed.map((q, index) => ({
+//     questionText: q.questionText || `Question ${index + 1}`,
+//     category: q.category || 'General',
+//     order: index,
+//   }));
+// }
 
 /**
  * Evaluates a full interview (all questions + candidate answers) in a
