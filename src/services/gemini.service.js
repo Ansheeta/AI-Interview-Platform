@@ -12,9 +12,9 @@ function getClient() {
   }
   if (!genAI) {
     // genAI = new GoogleGenerativeAI(env.gemini.apiKey);
-     genAI = new GoogleGenerativeAI(currentApiKey, {
+     genAI = new GoogleGenerativeAI(env.gemini.apiKey, {
       apiHeader: {
-        'x-goog-api-key': currentApiKey,
+        'x-goog-api-key': env.gemini.apiKey,
         'Content-Type': 'application/json'
       }
     });
