@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
+// 1. Grab just the base platform domain name
+const RAW_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+// 2. Ensure it cleanly constructs the version path for both local and production
+const API_BASE_URL = `${RAW_BASE_URL.replace(/\/$/, '')}/api/v1`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -10,6 +14,20 @@ const api = axios.create({
 
 let isRefreshing = false;
 let pendingQueue = [];
+
+
+// import axios from 'axios';
+
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
+
+// const api = axios.create({
+//   baseURL: API_BASE_URL,
+//   withCredentials: true, // send/receive httpOnly cookies (accessToken/refreshToken)
+//   headers: { 'Content-Type': 'application/json' },
+// });
+
+// let isRefreshing = false;
+// let pendingQueue = [];
 
 function processQueue(error) {
   pendingQueue.forEach(({ resolve, reject }) => {
