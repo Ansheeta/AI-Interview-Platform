@@ -1,31 +1,17 @@
+
+
 import axios from 'axios';
 
-// Automatically uses Netlify's domain in production, and localhost during development
-const API_BASE_URL = import.meta.env.PROD 
-  ? `${window.location.origin}/api/v1` 
-  : 'http://localhost:5000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, 
+  withCredentials: true, // send/receive httpOnly cookies (accessToken/refreshToken)
   headers: { 'Content-Type': 'application/json' },
 });
 
 let isRefreshing = false;
 let pendingQueue = [];
-
-// import axios from 'axios';
-
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
-
-// const api = axios.create({
-//   baseURL: API_BASE_URL,
-//   withCredentials: true, // send/receive httpOnly cookies (accessToken/refreshToken)
-//   headers: { 'Content-Type': 'application/json' },
-// });
-
-// let isRefreshing = false;
-// let pendingQueue = [];
 
 function processQueue(error) {
   pendingQueue.forEach(({ resolve, reject }) => {
