@@ -11,7 +11,13 @@ function getClient() {
     throw new AppError('AI service is not configured. Missing Gemini API key.', 500);
   }
   if (!genAI) {
-    genAI = new GoogleGenerativeAI(env.gemini.apiKey);
+    // genAI = new GoogleGenerativeAI(env.gemini.apiKey);
+     genAI = new GoogleGenerativeAI(currentApiKey, {
+      apiHeader: {
+        'x-goog-api-key': currentApiKey,
+        'Content-Type': 'application/json'
+      }
+    });
   }
   return genAI;
 }
